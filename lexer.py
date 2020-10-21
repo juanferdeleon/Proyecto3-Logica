@@ -41,14 +41,23 @@ t_EQUALS = r'\='
 
 t_ignore = r' '
 
+precedence = (
+    ('left', 'BICONDITIONAL'),
+    ('left', 'CONDITIONAL'),
+    ('left', 'OR'),
+    ('left', 'AND'),
+    ('left', 'NOT'),
+    ('left', 'PUNCTUATION_OPEN')
+)
+
 def t_TRUE(t):
-    r'\d'
+    r'[1]'
     if (t.value == '1'):
         t.value = True
     return t
 
 def t_FALSE(t):
-    r'\d'
+    r'[0]'
     if (t.value == '0'):
         t.value = False
     return t
@@ -64,10 +73,91 @@ def t_error(t):
 
 lexer = lex.lex()
 
-lexer.input("|")
+def p_error(p):
+    print("SYNTAX ERROR.")
+
+def p_calc(p):
+    '''
+    clac : expression
+         | var_assign
+         | empty
+    '''
+
+    print(p[1])
+    print(run(p[1]))
+
+def p_var_assign(p):
+    '''
+    var_assign : VARIABLE EQUALS expression
+    '''
+
+    p[0] = ('=', p[1], p[3])
+
+def p_expression(p):
+    '''
+    expression : expression AND expression
+               | expression OR expression
+               | expression CONDITIONAL expression
+               | expression BICONDITIONAL expression 
+    '''
+
+    p[0] = (p[2], p[1], p[3])
+
+def p_expression_not(p):
+    '''
+    expression : NOT TRUE
+               | NOT FALSE
+               | NOT expression
+    '''
+
+    p[0] = (p[1], p[2])
+
+def p_expression_parenthesis(p):
+    '''
+    expression : PUNCTUATION_OPEN expression PUNCTUATION_CLOSE
+    '''
+
+    p[0] = (p[2])    
+
+def p_expression_var(p):
+    '''
+    expression : VARIABLE
+    '''
+
+    p[0] = ('var', p[1])
+
+def p_expression_true_false(p):
+    '''
+    expression : TRUE
+               | FALSE
+    '''
+
+    p[0] = p[1]
+
+def p_empty(p):
+    '''
+    empty : 
+    '''
+
+    p[0] = None
+
+parser = yacc.yacc()
+
+def run(p):
+    if type(p) == tuple:
+        if p[0] == '^':
+            return (run(p[1]) and run(p[2]))
+        if p[0] == '|':
+            return (run(p[1]) or run(p[2]))
+        if p[0] == '~':
+            return not run(p[1])
+    else:
+        return p
 
 while True:
-    tok = lexer.token()
-    if not tok:
+    try: 
+        s = input('>> ')
+    except EOFError:
         break
-    print(tok)
+
+    parser.parse(s)
