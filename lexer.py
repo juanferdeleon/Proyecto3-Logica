@@ -16,6 +16,8 @@ import sys
 import ply.lex as lex
 import ply.yacc as yacc
 
+from graph import generate_graph
+
 tokens = [
     'VARIABLE',
     'NOT',
@@ -82,6 +84,7 @@ def p_calc(p):
          | var_assign
          | empty
     '''
+    print("Tupla", p[1])
     print(run(p[1]))
 
 def p_var_assign(p):
