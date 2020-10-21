@@ -82,8 +82,6 @@ def p_calc(p):
          | var_assign
          | empty
     '''
-
-    print(p[1])
     print(run(p[1]))
 
 def p_var_assign(p):
@@ -142,15 +140,33 @@ def p_empty(p):
     p[0] = None
 
 parser = yacc.yacc()
+env = {}
 
 def run(p):
     if type(p) == tuple:
+       
+        global env
+        
+        if p[0] == '=>':
+            p_1 = run(p[1])
+            p_2 = run(p[2])
+            if p_1 == True and p_2 == False:
+                return False
+            else:
+                return True
         if p[0] == '^':
             return (run(p[1]) and run(p[2]))
-        if p[0] == '|':
+        elif p[0] == '|':
             return (run(p[1]) or run(p[2]))
-        if p[0] == '~':
+        elif p[0] == '~':
             return not run(p[1])
+        elif p[0] == '=':
+            env[p[1]] = run(p[2])
+        elif p[0] == 'var':
+            if p[1] not in env:
+                return 'Undeclared variable.'
+            else:
+                return env[p[1]]
     else:
         return p
 
