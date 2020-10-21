@@ -150,11 +150,20 @@ def run(p):
         if p[0] == '=>':
             p_1 = run(p[1])
             p_2 = run(p[2])
+            
             if p_1 == True and p_2 == False:
                 return False
-            else:
+            
+            return True
+        elif p[0] == '<=>':
+            p_1 = run(p[1])
+            p_2 = run(p[2])
+            
+            if p_1 == p_2:
                 return True
-        if p[0] == '^':
+            
+            return False
+        elif p[0] == '^':
             return (run(p[1]) and run(p[2]))
         elif p[0] == '|':
             return (run(p[1]) or run(p[2]))
