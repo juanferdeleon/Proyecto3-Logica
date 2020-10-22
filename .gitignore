@@ -3,3 +3,6 @@ env
 
 ./__pycache__
 __pycache__
+ply/__pycache__/__init__.cpython-38.pyc
+ply/__pycache__/lex.cpython-38.pyc
+ply/__pycache__/yacc.cpython-38.pyc
